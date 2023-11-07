@@ -61,6 +61,7 @@ func TestAgent(t *testing.T) {
 			ACLPolicyFile:   config.ACLPolicyFile,
 			ServerTLSConfig: serverTLSConfig,
 			PeerTLSConfig:   peerTLSConfig,
+			Bootstrap:       i == 0,
 		})
 		require.NoError(t, err)
 		agents = append(agents, agent)

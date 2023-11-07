@@ -37,6 +37,7 @@ require (
 	github.com/miekg/dns v1.1.41 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
+	github.com/soheilhy/cmux v0.1.5 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
