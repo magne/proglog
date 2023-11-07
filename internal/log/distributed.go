@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	raftboltdb "github.com/hashicorp/raft-boltdb"
+	raftboltdb "github.com/hashicorp/raft-boltdb/v2"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/raft"
