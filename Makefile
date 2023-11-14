@@ -80,6 +80,10 @@ compile: $(PROTO_GO_FILES)
 test: $(PROTO_GO_FILES) $(CONFIG_FILES) $(CERT_FILES)
 	go test -race ./...
 
+TAG ?= 0.0.1
+build-docker:
+	docker build -t github.com/magne/proglog:$(TAG) .
+
 clean: ; $(info $(M) cleaning…)
 	$Q rm -f $(CURDIR)/api/v1/*.pb.go
 	$Q rm -rf $(BUILD) $(CONFIG_PATH)
