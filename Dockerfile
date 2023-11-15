@@ -1,5 +1,7 @@
 FROM golang:1.21.4-alpine AS build
 WORKDIR /go/src/proglog
+COPY go.* .
+RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /go/bin/proglog ./cmd/proglog
 RUN GRPC_HEALTH_PROBE_VERSION=v0.4.22 && \
