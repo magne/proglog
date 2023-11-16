@@ -25,8 +25,11 @@ spec:
               ID=$(echo $HOSTNAME | rev | cut -d- -f1 | rev)
               cat > /var/run/proglog/config.yaml <<EOD
               data-dir: /var/run/proglog/data
+              acl-model-file: /etc/proglog/model.conf
+              acl-policy-file: /etc/proglog/policy.csv
               rpc-port: {{.Values.rpcPort}}
-              bind-addr: "$HOSTNAME.proglog.{{.Release.Namespace}}.svc.cluster.local:{{.Values.serfPort}}"
+              bind-addr: "0.0.0.0:{{.Values.serfPort}}"
+              # bind-addr: "$HOSTNAME.proglog.{{.Release.Namespace}}.svc.cluster.local:{{.Values.serfPort}}"
               bootstrap: $([ $ID = 0 ] && echo true || echo false)
               $([ $ID != 0 ] && echo 'start-join-addrs: "proglog-0.proglog.{{.Release.Namespace}}.svc.cluster.local:{{.Values.serfPort}}"')
               EOD
@@ -46,10 +49,12 @@ spec:
           readinessProbe:
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.rpcPort }}"]
+              # command: ["/bin/grpc_health_probe", "-addr=$HOSTNAME.proglog.{{.Release.Namespace}}.svc.cluster.local:{{ .Values.rpcPort }}"]
             initialDelaySeconds: 10
           livenessProbe:
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.rpcPort }}"]
+              # command: ["/bin/grpc_health_probe", "-addr=$HOSTNAME.proglog.{{.Release.Namespace}}.svc.cluster.local:{{ .Values.rpcPort }}"]
             initialDelaySeconds: 10
           volumeMounts:
             - name: datadir

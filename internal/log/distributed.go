@@ -20,9 +20,10 @@ import (
 
 type (
 	DistributedLog struct {
-		config Config
-		log    *Log
-		raft   *raft.Raft
+		config  Config
+		log     *Log
+		raft    *raft.Raft
+		raftLog *logStore
 	}
 )
 
@@ -44,11 +45,13 @@ func (l *DistributedLog) setupLog(dataDir string) (err error) {
 	if err = os.MkdirAll(logDir, 0755); err != nil {
 		return
 	}
-	l.log, err = NewLog(dataDir, l.config)
+	l.log, err = NewLog(logDir, l.config)
 	return
 }
 
 func (l *DistributedLog) setupRaft(dataDir string) error {
+	var err error
+
 	fsm := &fsm{log: l.log}
 
 	logDir := filepath.Join(dataDir, "raft", "log")
@@ -57,7 +60,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	}
 	logConfig := l.config
 	logConfig.Segment.InitialOffset = 1
-	logStore, err := newLogStore(logDir, logConfig)
+	l.raftLog, err = newLogStore(logDir, logConfig)
 	if err != nil {
 		return err
 	}
@@ -91,11 +94,11 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	if l.config.Raft.CommitTimeout != 0 {
 		config.CommitTimeout = l.config.Raft.CommitTimeout
 	}
-	l.raft, err = raft.NewRaft(config, fsm, logStore, stableStore, snapshotStore, transport)
+	l.raft, err = raft.NewRaft(config, fsm, l.raftLog, stableStore, snapshotStore, transport)
 	if err != nil {
 		return err
 	}
-	hasState, err := raft.HasExistingState(logStore, stableStore, snapshotStore)
+	hasState, err := raft.HasExistingState(l.raftLog, stableStore, snapshotStore)
 	if err != nil {
 		return err
 	}
@@ -423,6 +426,11 @@ func (l *DistributedLog) Close() error {
 	if err := f.Error(); err != nil {
 		return err
 	}
+	// Close raft logs.
+	if err := l.raftLog.Log.Close(); err != nil {
+		return err
+	}
+	// Close user logs.
 	return l.log.Close()
 }
 

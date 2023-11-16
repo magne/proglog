@@ -91,7 +91,8 @@ func (s *segment) Read(off uint64) (*api.Record, error) {
 
 func (s *segment) IsMaxed() bool {
 	return s.store.size >= s.config.Segment.MaxStoreBytes ||
-		s.index.size >= s.config.Segment.MaxIndexBytes
+		s.index.size >= s.config.Segment.MaxIndexBytes ||
+		s.index.IsMaxed()
 }
 
 func (s *segment) Remove() error {
@@ -118,7 +119,7 @@ func (s *segment) Close() error {
 }
 
 func nearestMultiple(j, k uint64) uint64 {
-	if j >= 0 {
+	if j == 0 {
 		return (j / k) * k
 	}
 	return ((j - k + 1) / k) * k
